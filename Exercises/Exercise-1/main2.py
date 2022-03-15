@@ -1,37 +1,26 @@
-    
+from http.client import responses
+import requests
+import os
+from zipfile import ZipFile
 
-def main():
-    # Create a directory to save the files
-    directory = "downloads"
-    parent_dir = "/home/mubarak/data-engineering-practice/Exercises/Exercise-1"
+download_uris = ['https://divvy-tripdata.s3.amazonaws.com/Divvy_Trips_2018_Q4.zip',
+                'https://divvy-tripdata.s3.amazonaws.com/Divvy_Trips_2019_Q1.zip'
+                ]
 
-    # Join the directory and the path
-    path = os.path.join(parent_dir, directory)
-    os.mkdir(path)
+def download_file(download_uris):
+    responses = {download_uri: requests.get(download_uri, stream=True) 
+                    for download_uri in download_uris}
+    streams = {download_uri: responses[download_uri].iter_content(chunk_size=1024)
+                for download_uri in download_uris}
+    handles = {download_uri: open(os.path.basename(download_uri), "wb")
+                for download_uri in download_uris}
 
-    t1 = time.perf_counter()
-    def download_file(download_uri):
-        try:
-            file = requests.get(download_uri).content
-            with open(path, "wb") as f:
-                f.write(file.content)
-            print("Downloading...")
-        except:
-            print("Check the link, it seems it's not working properly")
-
-    # Fetching files concurrently
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        executor.map(download_file, download_uris)
-
-if __name__ == '__main__':
-    main()
-
-
-
-try:
-            file = requests.get(download_uri).content
-            with open(path, "wb") as f:
-                f.write(file.content)
-            print("Downloading...")
-        except:
-            print("Check the link, it seems it's not working properly")
+    while streams:
+        for download_uri in list(streams.keys()):
+            try:
+                chunk = next(streams[download_uri])
+                print("Received {} bytes for {}".format(len(chunk), url))
+                handles[download_uri].write(chunk)
+            except StopIteration: # no more contenet
+                handles[download_uri].close()
+                streams.pop(download_uri)
