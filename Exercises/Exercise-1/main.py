@@ -1,6 +1,5 @@
 import requests
 import os
-import concurrent.futures
 from multiprocessing.pool import ThreadPool
 from zipfile import ZipFile
 
