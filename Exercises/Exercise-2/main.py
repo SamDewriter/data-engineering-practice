@@ -2,11 +2,8 @@ import requests
 import pandas
 
 
+url = "https://www.ncei.noaa.gov/data/local-climatological-data/access/2021/"
 
-def main():
-    # your code here
-    pass
+r = requests.get(url)
 
-
-if __name__ == '__main__':
-    main()
+print(r.content[:100])
