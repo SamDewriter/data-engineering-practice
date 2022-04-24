@@ -20,8 +20,15 @@ path = os.path.join(parent_dir, directory)
 os.mkdir(path)
 
 def download_file(download_uri):
+    """Downloads zip files from different uris and unzip them to retrieve the csv file within.
+
+    Args:
+        download_uri (str): The uri of the zip file to be downloaded.
+    """
+        
     file = requests.get(download_uri)
     if download_uri.find("/"):
+        # Get the directory name from the uri
         dir_name = download_uri.rsplit("/", 1)[1]
         file_name = dir_name.rsplit(".", 1)[0]
         filename = f"{file_name}.csv"
